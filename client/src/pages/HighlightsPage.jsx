@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import ReactMarkdown from "react-markdown";
 
 const HighlightsPage = () => {
   const navigate = useNavigate();
@@ -43,8 +44,17 @@ const HighlightsPage = () => {
             <p>Generating highlights...</p>
           </div>
         ) : highlights ? (
-          <div style={{ lineHeight: "2.2", fontSize: "17px" }}>
-            <pre style={{ whiteSpace: "pre-wrap", fontFamily: "inherit", margin: 0 }}>{highlights}</pre>
+          <div className="markdown-content" style={{ lineHeight: "1.8", fontSize: "17px", color: "#e2e8f0" }}>
+            <ReactMarkdown
+              components={{
+                p: ({node, ...props}) => <p style={{ marginBottom: "15px" }} {...props} />,
+                ul: ({node, ...props}) => <ul style={{ marginLeft: "20px", marginBottom: "20px" }} {...props} />,
+                li: ({node, ...props}) => <li style={{ marginBottom: "10px" }} {...props} />,
+                strong: ({node, ...props}) => <strong style={{ color: "#667eea", fontWeight: "bold" }} {...props} />,
+              }}
+            >
+              {highlights}
+            </ReactMarkdown>
           </div>
         ) : (
           <p style={{ textAlign: "center" }}>No highlights available</p>

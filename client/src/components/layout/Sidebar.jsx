@@ -1,32 +1,35 @@
 import { useAuth } from "../../hooks/useAuth";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const location = useLocation();
 
-  const handleNavigation = (tab) => {
-    setActiveTab(tab);
-    if (tab === "myfiles") navigate("/myfiles");
-    if (tab === "voicelab") navigate("/voicelab");
-    if (tab === "settings") navigate("/settings");
-  };
+  const menuItems = [
+    { id: "dashboard", label: "Dashboard", path: "/dashboard" },
+    { id: "myfiles", label: "My Files", path: "/myfiles" },
+    { id: "voicelab", label: "Voice Lab", path: "/voicelab" },
+    { id: "settings", label: "Settings", path: "/settings" },
+  ];
 
   return (
     <div className="sidebar">
-      <h2>EchoInsight</h2>
-
-      <ul>
-        <li onClick={() => handleNavigation("myfiles")} style={{ cursor: "pointer", background: activeTab === "myfiles" ? "rgba(255,255,255,0.1)" : "transparent", padding: "10px", borderRadius: "5px" }}>📁 My Files</li>
-        <li onClick={() => handleNavigation("voicelab")} style={{ cursor: "pointer", background: activeTab === "voicelab" ? "rgba(255,255,255,0.1)" : "transparent", padding: "10px", borderRadius: "5px" }}>🎤 Voice Lab</li>
-        <li onClick={() => handleNavigation("settings")} style={{ cursor: "pointer", background: activeTab === "settings" ? "rgba(255,255,255,0.1)" : "transparent", padding: "10px", borderRadius: "5px" }}>⚙️ Settings</li>
+      <ul className="sidebar-menu">
+        {menuItems.map((item) => (
+          <li
+            key={item.id}
+            className={`menu-item ${location.pathname === item.path ? "active" : ""}`}
+            onClick={() => navigate(item.path)}
+          >
+            <span className="menu-icon">{item.icon}</span>
+            <span className="menu-label">{item.label}</span>
+          </li>
+        ))}
       </ul>
-
-      <button onClick={logout} style={{ marginTop: "auto", padding: "10px 20px", borderRadius: "8px", background: "#f5576c", border: "none", color: "white", cursor: "pointer", fontWeight: "bold" }}>🚪 Logout</button>
     </div>
   );
+
 };
 
 export default Sidebar;

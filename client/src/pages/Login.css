@@ -8,26 +8,26 @@
   display: flex;
   height: 100vh;
   font-family: "Segoe UI", sans-serif;
-  background: #0a0f1f;
-  color: white;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 /* LEFT SIDE */
 .left-section {
   width: 50%;
   padding: 120px 80px;
-  background: radial-gradient(circle at top left, #1d1b4b, #0a0f1f);
+  background: radial-gradient(circle at top left, #1d1b4b, var(--bg-primary));
 }
 
 .badge {
   display: inline-block;
   padding: 6px 15px;
   background: rgba(108, 99, 255, 0.1);
-  border: 1px solid #6c63ff;
+  border: 1px solid var(--accent-primary);
   border-radius: 20px;
   font-size: 12px;
   margin-bottom: 30px;
-  color: #6c63ff;
+  color: var(--accent-primary);
 }
 
 .left-section h1 {
@@ -36,14 +36,14 @@
 }
 
 .left-section h1 span {
-  background: linear-gradient(90deg, #6c63ff, #4f46e5);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
   background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .left-section p {
   font-size: 18px;
-  color: #b0b3c7;
+  color: var(--text-secondary);
   max-width: 450px;
 }
 
@@ -53,15 +53,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0c1224;
+  background: var(--bg-primary);
 }
 
 .form-card {
   width: 420px;
-  background: #121a33;
+  background: var(--bg-secondary);
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
 }
 
 .form-card h2 {
@@ -71,7 +72,7 @@
 
 .sub-text {
   font-size: 14px;
-  color: #b0b3c7;
+  color: var(--text-secondary);
   margin-bottom: 30px;
 }
 
@@ -84,20 +85,22 @@ label {
   font-size: 13px;
   margin-bottom: 6px;
   margin-top: 15px;
-  color: #b0b3c7;
+  color: var(--text-secondary);
 }
 
 input {
   padding: 12px;
   border-radius: 10px;
-  border: 1px solid #2a3355;
-  background: #0e1429;
+  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
   color: white;
   outline: none;
+  transition: 0.3s;
 }
 
 input:focus {
-  border: 1px solid #6c63ff;
+  border: 1px solid var(--accent-primary);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .create-btn {
@@ -105,7 +108,7 @@ input:focus {
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: linear-gradient(90deg, #6c63ff, #4f46e5);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
   color: white;
   font-weight: 600;
   cursor: pointer;
@@ -132,29 +135,34 @@ input:focus {
 .social-btn {
   flex: 1;
   padding: 10px;
-  background: #0e1429;
-  border: 1px solid #2a3355;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
   border-radius: 10px;
   color: white;
   cursor: pointer;
+  transition: 0.3s;
+}
+
+.social-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .login-text {
   margin-top: 20px;
   font-size: 14px;
   text-align: center;
-  color: #b0b3c7;
+  color: var(--text-secondary);
 }
 
 .login-text span {
-  color: #6c63ff;
+  color: var(--accent-primary);
   cursor: pointer;
 }
 
 .response-msg {
   margin-top: 15px;
   font-size: 14px;
-  color: #6c63ff;
+  color: var(--accent-primary);
 }
 
 /* RESPONSIVE */
@@ -171,4 +179,4 @@ input:focus {
   .left-section {
     padding: 60px 30px;
   }
-}
+}

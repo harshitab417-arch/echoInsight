@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
+import SecondaryNavbar from "../components/layout/SecondaryNavbar";
 
 const MyFiles = () => {
   const [papers, setPapers] = useState([]);
@@ -15,13 +16,10 @@ const MyFiles = () => {
 
   const fetchPapers = async () => {
     try {
-      console.log("Calling API: /pdf/papers");
       const res = await api.get("/pdf/papers");
-      console.log("Response:", res.data);
       setPapers(res.data);
     } catch (error) {
       console.error("Failed to fetch papers:", error);
-      console.error("Error details:", error.response?.status, error.response?.data);
     }
     setLoading(false);
   };
@@ -31,67 +29,113 @@ const MyFiles = () => {
     navigate("/dashboard");
   };
 
+  const getFileUrl = (path) => {
+    if (!path) return "";
+    return `http://localhost:5000/${path.replace(/\\/g, "/")}`;
+  };
+
+  const handleView = (path) => {
+    const url = getFileUrl(path);
+    window.open(url, "_blank");
+  };
+
+  const handleDownload = async (path, filename) => {
+    const url = getFileUrl(path);
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = filename || "document.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      alert("Failed to download file.");
+    }
+  };
+
   return (
-    <div style={{ padding: "40px", maxWidth: "1200px", margin: "0 auto" }}>
-      <h1 style={{ marginBottom: "30px" }}>📁 My Files</h1>
-      
-      {loading ? (
-        <p>Loading files...</p>
-      ) : papers.length === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px", background: "rgba(255,255,255,0.05)", borderRadius: "15px" }}>
-          <div style={{ fontSize: "64px", marginBottom: "20px" }}>📄</div>
-          <p style={{ fontSize: "18px", opacity: 0.7 }}>No files found</p>
-          <button onClick={() => navigate("/dashboard")} style={{ marginTop: "20px", padding: "12px 24px", borderRadius: "8px", background: "#667eea", border: "none", color: "white", cursor: "pointer", fontWeight: "bold" }}>
-            Upload File
-          </button>
-        </div>
-      ) : (
-        <div style={{ background: "rgba(255,255,255,0.05)", borderRadius: "12px", overflow: "hidden" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
-            <thead>
-              <tr style={{ background: "rgba(255,255,255,0.1)" }}>
-                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>File Name</th>
-                <th style={{ padding: "15px", textAlign: "left", fontWeight: "bold" }}>Upload Date</th>
-                <th style={{ padding: "15px", textAlign: "center", fontWeight: "bold" }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {papers.map((paper, index) => (
-                <tr key={paper._id} style={{ borderTop: index > 0 ? "1px solid rgba(255,255,255,0.1)" : "none" }}>
-                  <td style={{ padding: "15px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <span style={{ fontSize: "24px" }}>📄</span>
-                      <span>{paper.originalFileName || paper.title || "Untitled"}</span>
-                    </div>
-                  </td>
-                  <td style={{ padding: "15px", opacity: 0.7 }}>
-                    {new Date(paper.createdAt || paper.uploadedAt).toLocaleDateString()}
-                  </td>
-                  <td style={{ padding: "15px", textAlign: "center" }}>
-                    <button
-                      onClick={() => handleFileClick(paper._id)}
-                      style={{
-                        padding: "8px 16px",
-                        borderRadius: "6px",
-                        background: "#667eea",
-                        border: "none",
-                        color: "white",
-                        cursor: "pointer",
-                        fontWeight: "bold",
-                        fontSize: "14px"
-                      }}
-                    >
-                      Use File
-                    </button>
-                  </td>
+    <div className="sub-page">
+      <SecondaryNavbar />
+
+      <div className="content-container" style={{ padding: "40px 40px 40px", maxWidth: "1200px", margin: "0 auto" }}>
+
+        {loading ? (
+          <div className="card" style={{ textAlign: "center", padding: "40px" }}>
+            <p>Loading your research files...</p>
+          </div>
+        ) : papers.length === 0 ? (
+          <div className="card" style={{ textAlign: "center", padding: "80px" }}>
+            <div style={{ fontSize: "64px", marginBottom: "20px" }}>📄</div>
+            <h2 style={{ marginBottom: "15px" }}>No Files Found</h2>
+            <p style={{ color: "var(--text-secondary)", marginBottom: "30px" }}>You haven't uploaded any research papers yet.</p>
+            <button
+              className="primary-btn"
+              onClick={() => navigate("/dashboard")}
+              style={{ width: "fit-content" }}
+            >
+              Upload First File
+            </button>
+          </div>
+        ) : (
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ background: "rgba(255, 255, 255, 0.03)" }}>
+                  <th style={{ padding: "20px", textAlign: "left", fontWeight: "600", color: "var(--text-secondary)", fontSize: "14px" }}>FILE NAME</th>
+                  <th style={{ padding: "20px", textAlign: "left", fontWeight: "600", color: "var(--text-secondary)", fontSize: "14px" }}>UPLOAD DATE</th>
+                  <th style={{ padding: "20px", textAlign: "right", fontWeight: "600", color: "var(--text-secondary)", fontSize: "14px" }}>ACTIONS</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {papers.map((paper, index) => (
+                  <tr key={paper._id} style={{ borderTop: "1px solid var(--glass-border)", transition: "0.3s" }}>
+                    <td style={{ padding: "20px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
+                        <span style={{ fontSize: "24px" }}>📄</span>
+                        <div style={{ display: "flex", flexDirection: "column" }}>
+                          <span style={{ fontWeight: "500" }}>{paper.originalFileName || paper.title || "Untitled Paper"}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: "20px", color: "var(--text-secondary)" }}>
+                      {new Date(paper.createdAt || paper.uploadedAt).toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </td>
+                    <td style={{ padding: "20px", textAlign: "right" }}>
+                      <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                        <button
+                          className="file-action-btn"
+                          onClick={() => handleView(paper.filePath)}
+                        >
+                          View
+                        </button>
+                        <button
+                          className="file-action-btn"
+                          onClick={() => handleDownload(paper.filePath, paper.originalFileName)}
+                        >
+                          Download
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
+
 export default MyFiles;
+

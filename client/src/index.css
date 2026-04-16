@@ -1,4 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+:root {
+  --bg-primary: #050510;
+  --bg-secondary: #0e0b26;
+  --bg-card: rgba(255, 255, 255, 0.05);
+  --accent-primary: #6c63ff;
+  --accent-secondary: #4f8cff;
+  --text-primary: #ffffff;
+  --text-secondary: #b0b3c7;
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
 
 * {
   margin: 0;
@@ -8,8 +17,9 @@
 }
 
 body {
-  background: radial-gradient(circle at top left, #1a1446, #050510 60%);
-  color: #ffffff;
+  background: var(--bg-primary);
+  background: radial-gradient(circle at top left, #1a1446, var(--bg-primary) 60%);
+  color: var(--text-primary);
   min-height: 100vh;
 }
 
@@ -19,7 +29,7 @@ a {
 }
 
 .primary-btn {
-  background: linear-gradient(90deg, #6a5af9, #4f8cff);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
   padding: 12px 22px;
   border-radius: 10px;
   border: none;
@@ -30,13 +40,14 @@ a {
 }
 
 .primary-btn:hover {
-  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(108, 99, 255, 0.3);
 }
 
 .card {
-  background: rgba(255,255,255,0.05);
+  background: var(--bg-card);
   border-radius: 20px;
   padding: 25px;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid var(--glass-border);
   backdrop-filter: blur(10px);
-}
+}

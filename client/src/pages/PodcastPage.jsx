@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "./PodcastPage.css";
+import ReactMarkdown from "react-markdown";
 
 const PodcastPage = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const PodcastPage = () => {
   const [podcast, setPodcast] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [currentLine, setCurrentLine] = useState(-1);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [selectedVoice, setSelectedVoice] = useState(0);
@@ -29,6 +31,9 @@ const PodcastPage = () => {
     const loadVoices = () => setVoices(window.speechSynthesis.getVoices());
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
+    
+    // Cleanup on unmount
+    return () => window.speechSynthesis.cancel();
   }, []);
 
   const generatePodcast = async () => {
@@ -64,73 +69,89 @@ const PodcastPage = () => {
     return parsed;
   };
 
-  const playPodcast = () => {
+  const speakLine = (lines) => {
+    if (!isSpeakingRef.current || currentIndexRef.current >= lines.length) {
+      if (currentIndexRef.current >= lines.length) {
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentLine(-1);
+        currentIndexRef.current = 0;
+        isSpeakingRef.current = false;
+      }
+      return;
+    }
+
+    setCurrentLine(currentIndexRef.current);
+    const utterance = new SpeechSynthesisUtterance(lines[currentIndexRef.current].text);
+    utterance.rate = playbackRate;
+    
+    const availableVoices = window.speechSynthesis.getVoices();
+    if (availableVoices.length > 0 && availableVoices[selectedVoice]) {
+      utterance.voice = availableVoices[selectedVoice];
+    }
+    
+    utterance.onend = () => {
+      if (isSpeakingRef.current) {
+        currentIndexRef.current++;
+        if (currentIndexRef.current < lines.length) {
+          setTimeout(() => speakLine(lines), 200);
+        } else {
+          setIsPlaying(false);
+          setIsPaused(false);
+          setCurrentLine(-1);
+          currentIndexRef.current = 0;
+          isSpeakingRef.current = false;
+        }
+      }
+    };
+    
+    utterance.onerror = (e) => {
+      // Only handle as a terminal error if we were supposed to be speaking
+      if (isSpeakingRef.current) {
+        console.error("Speech error:", e);
+        setIsPlaying(false);
+        setIsPaused(false);
+        setCurrentLine(-1);
+        currentIndexRef.current = 0;
+        isSpeakingRef.current = false;
+      }
+    };
+
+    
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleStop = () => {
+    isSpeakingRef.current = false;
+    window.speechSynthesis.cancel();
+    setIsPlaying(false);
+    setIsPaused(false);
+    setCurrentLine(-1);
+    currentIndexRef.current = 0;
+  };
+
+  const handlePlayback = () => {
     if (!podcast?.script) return;
+    const lines = parseScript(podcast.script);
     
     if (isPlaying) {
+      // PAUSE
       isSpeakingRef.current = false;
       window.speechSynthesis.cancel();
       setIsPlaying(false);
-      setCurrentLine(-1);
-      currentIndexRef.current = 0;
-      return;
-    }
-
-    const lines = parseScript(podcast.script);
-    if (lines.length === 0) {
-      alert("No valid script lines found");
-      return;
-    }
-
-    currentIndexRef.current = 0;
-    isSpeakingRef.current = true;
-    setIsPlaying(true);
-
-    const speakLine = () => {
-      if (!isSpeakingRef.current || currentIndexRef.current >= lines.length) {
-        setIsPlaying(false);
-        setCurrentLine(-1);
+      setIsPaused(true);
+    } else {
+      // PLAY OR RESUME
+      if (!isPaused) {
         currentIndexRef.current = 0;
-        isSpeakingRef.current = false;
-        return;
       }
-
-      setCurrentLine(currentIndexRef.current);
-      const utterance = new SpeechSynthesisUtterance(lines[currentIndexRef.current].text);
-      utterance.rate = playbackRate;
-      
-      const availableVoices = window.speechSynthesis.getVoices();
-      if (availableVoices.length > 0 && availableVoices[selectedVoice]) {
-        utterance.voice = availableVoices[selectedVoice];
-      }
-      
-      utterance.onend = () => {
-        if (isSpeakingRef.current) {
-          currentIndexRef.current++;
-          if (currentIndexRef.current < lines.length) {
-            setTimeout(() => speakLine(), 200);
-          } else {
-            setIsPlaying(false);
-            setCurrentLine(-1);
-            currentIndexRef.current = 0;
-            isSpeakingRef.current = false;
-          }
-        }
-      };
-      
-      utterance.onerror = (e) => {
-        console.error("Speech error:", e);
-        setIsPlaying(false);
-        setCurrentLine(-1);
-        currentIndexRef.current = 0;
-        isSpeakingRef.current = false;
-      };
-      
-      window.speechSynthesis.speak(utterance);
-    };
-
-    speakLine();
+      isSpeakingRef.current = true;
+      setIsPlaying(true);
+      setIsPaused(false);
+      speakLine(lines);
+    }
   };
+
 
   const scriptLines = podcast ? parseScript(podcast.script) : [];
 
@@ -181,9 +202,50 @@ const PodcastPage = () => {
       ) : (
         <>
           <div style={{ marginBottom: "30px", padding: "20px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", display: "flex", gap: "15px", alignItems: "center", flexWrap: "wrap" }}>
-            <button onClick={playPodcast} style={{ padding: "12px 30px", fontSize: "16px", borderRadius: "8px", background: isPlaying ? "#f5576c" : "#667eea", border: "none", color: "white", cursor: "pointer", fontWeight: "bold" }}>
-              {isPlaying ? "⏸ Stop" : "▶ Play"}
+            <button 
+              onClick={handlePlayback} 
+              style={{ 
+                padding: "12px 30px", 
+                fontSize: "16px", 
+                borderRadius: "8px", 
+                background: isPlaying ? "#f5576c" : isPaused ? "#2ed573" : "#667eea", 
+                border: "none", 
+                color: "white", 
+                cursor: "pointer", 
+                fontWeight: "bold",
+                transition: "0.3s",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+              }}
+            >
+              {isPlaying ? (
+                <><span style={{ fontSize: "18px" }}>⏸</span> Pause</>
+              ) : isPaused ? (
+                <><span style={{ fontSize: "18px" }}>▶</span> Resume</>
+              ) : (
+                <><span style={{ fontSize: "18px" }}>▶</span> Play Podcast</>
+              )}
             </button>
+
+            {(isPlaying || isPaused) && (
+              <button 
+                onClick={handleStop}
+                style={{
+                  padding: "12px 20px",
+                  borderRadius: "8px",
+                  background: "rgba(255, 255, 255, 0.1)",
+                  border: "1px solid rgba(255, 255, 255, 0.2)",
+                  color: "white",
+                  cursor: "pointer",
+                  fontWeight: "bold"
+                }}
+              >
+                ■ Stop
+              </button>
+            )}
+
+
             
             <select value={selectedVoice} onChange={(e) => setSelectedVoice(Number(e.target.value))} style={{ padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", color: "white", border: "1px solid rgba(255,255,255,0.2)" }}>
               {voices.length === 0 ? (
@@ -240,7 +302,17 @@ const PodcastPage = () => {
                   <div style={{ fontWeight: "bold", marginBottom: "8px", fontSize: "14px", opacity: 0.9 }}>
                     Speaker {line.speaker}
                   </div>
-                  <div style={{ lineHeight: "1.7", fontSize: "16px" }}>{line.text}</div>
+                  <div style={{ lineHeight: "1.7", fontSize: "16px" }}>
+                    <ReactMarkdown
+                      components={{
+                        p: ({node, ...props}) => <p style={{ margin: 0 }} {...props} />,
+                        strong: ({node, ...props}) => <strong style={{ color: "#ffffff", fontWeight: "bold" }} {...props} />,
+                      }}
+                    >
+                      {line.text}
+                    </ReactMarkdown>
+                  </div>
+
                 </div>
               </div>
             ))}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import ReactMarkdown from "react-markdown";
 
 const QAPage = () => {
   const navigate = useNavigate();
@@ -71,7 +72,16 @@ const QAPage = () => {
                   <div style={{ fontWeight: "bold", marginBottom: "5px", fontSize: "13px", opacity: 0.9 }}>
                     {conv.type === "question" ? "You" : "AI Assistant"}
                   </div>
-                  <div style={{ lineHeight: "1.6" }}>{conv.text}</div>
+                  <div style={{ lineHeight: "1.6" }}>
+                    <ReactMarkdown
+                      components={{
+                        p: ({node, ...props}) => <p style={{ margin: 0 }} {...props} />,
+                        strong: ({node, ...props}) => <strong style={{ color: conv.type === "question" ? "#ffffff" : "#ffffff", fontWeight: "bold", textShadow: "0 0 1px rgba(0,0,0,0.2)" }} {...props} />,
+                      }}
+                    >
+                      {conv.text}
+                    </ReactMarkdown>
+                  </div>
                 </div>
               </div>
             ))
@@ -124,3 +134,4 @@ const QAPage = () => {
 };
 
 export default QAPage;
+
