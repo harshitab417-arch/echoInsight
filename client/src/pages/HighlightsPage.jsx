@@ -12,11 +12,12 @@ const HighlightsPage = () => {
 
   useEffect(() => {
     if (!paperId) {
-      navigate("/dashboard");
+      navigate("/dashboard", { state: { message: "Please upload a PDF first!" } });
       return;
     }
     generateHighlights();
   }, []);
+
 
   const generateHighlights = async () => {
     setLoading(true);

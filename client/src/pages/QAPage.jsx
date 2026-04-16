@@ -12,8 +12,9 @@ const QAPage = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!paperId) navigate("/dashboard");
+    if (!paperId) navigate("/dashboard", { state: { message: "Please upload a PDF first!" } });
   }, []);
+
 
   const askQuestion = async () => {
     if (!question.trim()) return;
