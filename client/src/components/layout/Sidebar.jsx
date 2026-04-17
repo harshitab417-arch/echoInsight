@@ -2,7 +2,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -15,7 +15,16 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
+      <div className="welcome-section">
+        <span className="welcome-icon">👋</span>
+        <div className="welcome-text">
+          <span className="welcome-label">Welcome Back,</span>
+          <span className="user-name">{user?.name || "User"}</span>
+        </div>
+      </div>
+
       <ul className="sidebar-menu">
+
         {menuItems.map((item) => (
           <li
             key={item.id}

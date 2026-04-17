@@ -23,15 +23,60 @@ body {
 .sidebar {
   width: 280px;
   background: var(--bg-secondary);
-  padding: 40px 24px;
+  padding: 30px 24px;
   border-right: 1px solid var(--glass-border);
   display: flex;
   flex-direction: column;
   height: 100%;
 }
 
+.welcome-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px;
+  background: rgba(108, 99, 255, 0.05);
+  border-radius: 16px;
+  border: 1px solid rgba(108, 99, 255, 0.1);
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+}
+
+.welcome-section:hover {
+  background: rgba(108, 99, 255, 0.08);
+  border-color: rgba(108, 99, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.welcome-icon {
+  font-size: 28px;
+}
+
+.welcome-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.welcome-label {
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
 
 .sidebar-menu {
+
   list-style: none;
   flex: 1;
 }
@@ -154,5 +199,3 @@ body {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(108, 99, 255, 0.1);
 }
-
-

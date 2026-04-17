@@ -9,8 +9,9 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      setUser({ token });
+    const storedUser = localStorage.getItem("user");
+    if (token && storedUser) {
+      setUser({ ...JSON.parse(storedUser), token });
     }
     setLoading(false);
   }, []);
@@ -18,20 +19,24 @@ export const AuthProvider = ({ children }) => {
   const login = async (data) => {
     const res = await loginUser(data);
     localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify({ name: res.data.name, email: res.data.email }));
     setUser(res.data);
   };
 
   const register = async (data) => {
     const res = await registerUser(data);
     localStorage.setItem("token", res.data.token);
+    localStorage.setItem("user", JSON.stringify({ name: res.data.name, email: res.data.email }));
     setUser(res.data);
   };
 
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     localStorage.removeItem("paperId");
     setUser(null);
   };
+
 
 
   return (

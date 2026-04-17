@@ -10,7 +10,7 @@ const PodcastPage = () => {
   const utteranceRef = useRef(null);
   const currentIndexRef = useRef(0);
   const isSpeakingRef = useRef(false);
-  
+
   const [tone, setTone] = useState("academic");
   const [complexity, setComplexity] = useState("low");
   const [duration, setDuration] = useState("5");
@@ -44,7 +44,7 @@ const PodcastPage = () => {
     };
     loadVoices();
     window.speechSynthesis.onvoiceschanged = loadVoices;
-    
+
     // Cleanup on unmount
     return () => window.speechSynthesis.cancel();
   }, []);
@@ -97,18 +97,18 @@ const PodcastPage = () => {
 
     const currentLineData = lines[currentIndexRef.current];
     setCurrentLine(currentIndexRef.current);
-    
+
     const utterance = new SpeechSynthesisUtterance(currentLineData.text);
     utterance.rate = playbackRate;
-    
+
     const availableVoices = window.speechSynthesis.getVoices();
     const voiceIndex = currentLineData.speaker === 'A' ? voiceA : voiceB;
-    
+
     if (availableVoices.length > 0 && availableVoices[voiceIndex]) {
       utterance.voice = availableVoices[voiceIndex];
     }
 
-    
+
     utterance.onend = () => {
       if (isSpeakingRef.current) {
         currentIndexRef.current++;
@@ -123,7 +123,7 @@ const PodcastPage = () => {
         }
       }
     };
-    
+
     utterance.onerror = (e) => {
       // Only handle as a terminal error if we were supposed to be speaking
       if (isSpeakingRef.current) {
@@ -136,7 +136,7 @@ const PodcastPage = () => {
       }
     };
 
-    
+
     window.speechSynthesis.speak(utterance);
   };
 
@@ -152,7 +152,7 @@ const PodcastPage = () => {
   const handlePlayback = () => {
     if (!podcast?.script) return;
     const lines = parseScript(podcast.script);
-    
+
     if (isPlaying) {
       // PAUSE
       isSpeakingRef.current = false;
@@ -185,7 +185,7 @@ const PodcastPage = () => {
       {!podcast ? (
         <div style={{ background: "rgba(255,255,255,0.05)", padding: "40px", borderRadius: "15px" }}>
           <h3 style={{ marginBottom: "30px" }}>Podcast Settings</h3>
-          
+
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "20px", marginBottom: "30px" }}>
             <div>
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>Tone</label>
@@ -195,7 +195,7 @@ const PodcastPage = () => {
                 <option value="interview">Interview</option>
               </select>
             </div>
-            
+
             <div>
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>Complexity</label>
               <select value={complexity} onChange={(e) => setComplexity(e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", color: "white", border: "1px solid rgba(255,255,255,0.2)", fontSize: "16px" }}>
@@ -203,7 +203,7 @@ const PodcastPage = () => {
                 <option value="high">High Vocabulary</option>
               </select>
             </div>
-            
+
             <div>
               <label style={{ display: "block", marginBottom: "10px", fontWeight: "bold" }}>Duration</label>
               <select value={duration} onChange={(e) => setDuration(e.target.value)} style={{ width: "100%", padding: "12px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", color: "white", border: "1px solid rgba(255,255,255,0.2)", fontSize: "16px" }}>
@@ -213,24 +213,24 @@ const PodcastPage = () => {
               </select>
             </div>
           </div>
-          
+
           <button onClick={generatePodcast} disabled={loading} style={{ padding: "15px 40px", fontSize: "18px", borderRadius: "10px", background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)", border: "none", color: "white", cursor: "pointer", fontWeight: "bold" }}>
             {loading ? "Generating..." : "Generate Podcast"}
           </button>
         </div>
       ) : (
         <>
-          <div style={{ marginBottom: "30px", padding: "20px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", display: "flex", gap: "15px", alignItems: "center", flexWrap: "wrap" }}>
-            <button 
-              onClick={handlePlayback} 
-              style={{ 
-                padding: "12px 30px", 
-                fontSize: "16px", 
-                borderRadius: "8px", 
-                background: isPlaying ? "#f5576c" : isPaused ? "#2ed573" : "#667eea", 
-                border: "none", 
-                color: "white", 
-                cursor: "pointer", 
+          <div style={{ marginBottom: "30px", padding: "20px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", display: "flex", gap: "9px", alignItems: "center", flexWrap: "wrap" }}>
+            <button
+              onClick={handlePlayback}
+              style={{
+                padding: "10px 20px",
+                fontSize: "14px",
+                borderRadius: "8px",
+                background: isPlaying ? "#f5576c" : isPaused ? "#2ed573" : "#667eea",
+                border: "none",
+                color: "white",
+                cursor: "pointer",
                 fontWeight: "bold",
                 transition: "0.3s",
                 display: "flex",
@@ -248,11 +248,12 @@ const PodcastPage = () => {
             </button>
 
             {(isPlaying || isPaused) && (
-              <button 
+              <button
                 onClick={handleStop}
                 style={{
                   padding: "12px 20px",
                   borderRadius: "8px",
+                  fontSize: "14px",
                   background: "rgba(255, 255, 255, 0.1)",
                   border: "1px solid rgba(255, 255, 255, 0.2)",
                   color: "white",
@@ -265,24 +266,25 @@ const PodcastPage = () => {
             )}
 
 
-            
-            <div style={{ display: "flex", gap: "10px", alignItems: "center", background: "rgba(255,255,255,0.05)", padding: "5px 12px", borderRadius: "8px" }}>
-              <div style={{ background: "rgba(102, 126, 234, 0.2)", padding: "4px 8px", borderRadius: "6px", fontSize: "11px", border: "1px solid rgba(102, 126, 234, 0.3)", color: "#a5b4fc", fontWeight: "bold" }}>👤 A</div>
-              <select value={voiceA} onChange={(e) => setVoiceA(Number(e.target.value))} style={{ padding: "6px", borderRadius: "6px", background: "transparent", color: "white", border: "none", maxWidth: "150px", fontSize: "14px", cursor: "pointer" }}>
+
+            <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.05)", padding: "5px 8px", borderRadius: "8px" }}>
+              <div style={{ background: "rgba(102, 126, 234, 0.2)", padding: "4px 6px", borderRadius: "6px", fontSize: "11px", border: "1px solid rgba(102, 126, 234, 0.3)", color: "#a5b4fc", fontWeight: "bold" }}>👤A</div>
+              <select value={voiceA} onChange={(e) => setVoiceA(Number(e.target.value))} style={{ padding: "6px", borderRadius: "6px", background: "transparent", color: "white", border: "none", maxWidth: "278px", fontSize: "14px", cursor: "pointer" }}>
                 {voices.length === 0 ? <option>Loading...</option> : voices.map((v, i) => <option key={i} value={i} style={{ background: "#1a1a2e", color: "white" }}>{v.name}</option>)}
               </select>
             </div>
 
-            <div style={{ display: "flex", gap: "10px", alignItems: "center", background: "rgba(255,255,255,0.05)", padding: "5px 12px", borderRadius: "8px" }}>
-              <div style={{ background: "rgba(240, 147, 251, 0.2)", padding: "4px 8px", borderRadius: "6px", fontSize: "11px", border: "1px solid rgba(240, 147, 251, 0.3)", color: "#fbcfe8", fontWeight: "bold" }}>👤 B</div>
-              <select value={voiceB} onChange={(e) => setVoiceB(Number(e.target.value))} style={{ padding: "6px", borderRadius: "6px", background: "transparent", color: "white", border: "none", maxWidth: "150px", fontSize: "14px", cursor: "pointer" }}>
+            <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.05)", padding: "5px 8px", borderRadius: "8px" }}>
+              <div style={{ background: "rgba(240, 147, 251, 0.2)", padding: "4px 6px", borderRadius: "6px", fontSize: "11px", border: "1px solid rgba(240, 147, 251, 0.3)", color: "#fbcfe8", fontWeight: "bold" }}>👤B</div>
+              <select value={voiceB} onChange={(e) => setVoiceB(Number(e.target.value))} style={{ padding: "6px", borderRadius: "6px", background: "transparent", color: "white", border: "none", maxWidth: "278px", fontSize: "14px", cursor: "pointer" }}>
                 {voices.length === 0 ? <option>Loading...</option> : voices.map((v, i) => <option key={i} value={i} style={{ background: "#1a1a2e", color: "white" }}>{v.name}</option>)}
               </select>
             </div>
-            
-            <div style={{ display: "flex", alignItems: "center", gap: "5px", background: "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: "8px" }}>
-              <span style={{ fontSize: "16px" }}>⚡</span>
-              <select value={playbackRate} onChange={(e) => setPlaybackRate(Number(e.target.value))} style={{ padding: "4px", background: "transparent", color: "white", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "500" }}>
+
+
+            <div style={{ display: "flex", alignItems: "center", background: "rgba(255,255,255,0.05)", padding: "8px 8px", borderRadius: "8px" }}>
+              <span style={{ fontSize: "14px" }}>⚡</span>
+              <select value={playbackRate} onChange={(e) => setPlaybackRate(Number(e.target.value))} style={{ background: "transparent", color: "white", border: "none", cursor: "pointer", fontSize: "14px", fontWeight: "500" }}>
                 <option value="0.5" style={{ background: "#1a1a2e" }}>0.5x</option>
                 <option value="0.75" style={{ background: "#1a1a2e" }}>0.75x</option>
                 <option value="1" style={{ background: "#1a1a2e" }}>1x</option>
@@ -292,8 +294,8 @@ const PodcastPage = () => {
               </select>
             </div>
 
-            
-            <select value={duration} disabled style={{ padding: "10px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", color: "white", border: "1px solid rgba(255,255,255,0.2)", opacity: 0.7 }}>
+
+            <select value={duration} disabled style={{ padding: "8px", borderRadius: "8px", background: "rgba(255,255,255,0.1)", color: "white", border: "1px solid rgba(255,255,255,0.2)", opacity: 0.7 }}>
               <option value="5" style={{ background: "#1a1a2e", color: "white" }}>5 min</option>
               <option value="10" style={{ background: "#1a1a2e", color: "white" }}>10 min</option>
               <option value="15" style={{ background: "#1a1a2e", color: "white" }}>15 min</option>
@@ -318,7 +320,7 @@ const PodcastPage = () => {
                     maxWidth: "70%",
                     padding: "20px 25px",
                     borderRadius: "15px",
-                    background: line.speaker === 'A' 
+                    background: line.speaker === 'A'
                       ? "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
                       : "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
                     color: "white",
@@ -332,8 +334,8 @@ const PodcastPage = () => {
                   <div style={{ lineHeight: "1.7", fontSize: "16px" }}>
                     <ReactMarkdown
                       components={{
-                        p: ({node, ...props}) => <p style={{ margin: 0 }} {...props} />,
-                        strong: ({node, ...props}) => <strong style={{ color: "#ffffff", fontWeight: "bold" }} {...props} />,
+                        p: ({ node, ...props }) => <p style={{ margin: 0 }} {...props} />,
+                        strong: ({ node, ...props }) => <strong style={{ color: "#ffffff", fontWeight: "bold" }} {...props} />,
                       }}
                     >
                       {line.text}
